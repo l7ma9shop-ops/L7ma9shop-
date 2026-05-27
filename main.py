@@ -1,41 +1,31 @@
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
+from aiogram import Bot, Dispatcher
+import handlers  # استدعاء ملف الأوامر والأزرار
+import database  # استدعاء ملف القاعدة
 
-# --- حقوق الملكية ---
-# Developed by: L7MA9 SHOP
-# --------------------
-
-TOKEN = "ضع_التوكن_الجديد_هنا"
+# --- إعدادات البوت ---
+TOKEN = "ضع_التوكن_هنا"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# القائمة الرئيسية
-def get_main_menu():
-    buttons = [
-        [InlineKeyboardButton(text="💎 المنتجات", callback_data="products")],
-        [InlineKeyboardButton(text="💳 طرق الدفع", callback_data="payments")]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-@dp.message(Command("start"))
-async def start(message: types.Message):
-    await message.answer("أهلاً بك في متجر L7MA9 SHOP! اختر ما تحتاجه:\n\n--- L7MA9 SHOP ---", reply_markup=get_main_menu())
-
-@dp.callback_query(F.data == "products")
-async def show_products(callback: types.CallbackQuery):
-    # هنا سيتم لاحقاً جلب المنتجات من قاعدة البيانات
-    await callback.message.answer("لدينا حالياً: كود هاك (5 USDT)\nأرسل '1' لشراء كود واحد.")
-
-@dp.message(F.text == "1")
-async def process_buy(message: types.Message):
-    # هنا يظهر رقم بايننس بعد تحديد الطلب
-    await message.answer("السعر: 5 USDT\nيرجى الدفع لهذا الـ ID: `1077458202`\nثم أرسل رقم الطلب.\n\n--- L7MA9 SHOP ---")
-
 async def main():
+    # 1. تهيئة قاعدة البيانات عند التشغيل
+    database.init_db()
+    
+    # 2. تسجيل الـ Router الذي يحتوي على الأوامر
+    dp.include_router(handlers.router)
+    
+    print("🚀 L7MA9 SHOP Bot is running successfully...")
+    
+    # 3. تشغيل البوت (Polling)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
-    
+    # تشغيل النظام كاملاً
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        print(f"Error: {e}")
+
+# L7MA9 SHOP - THE ULTIMATE STORE SYSTEM
+# Completed Successfully.
